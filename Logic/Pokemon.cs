@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using RapidApid_gaming.Controllers;
 using RapidApid_gaming.Interface;
 using RapidApid_gaming.Models;
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
@@ -26,26 +27,19 @@ namespace RapidApid_gaming.Logic
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://pokemon-go1.p.rapidapi.com/pokemon_names.json");
-                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
-                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
-
-                using var response = await _httpClient.SendAsync(request);
-                var body = await response.Content.ReadAsStringAsync();
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/pokemon_names.json");
 
                 // Check if the JSON is an object instead of an array
-                if (body.StartsWith("{"))
+                if (response.StartsWith("{"))
                 {
                     // Deserialize the JSON to a dictionary
-                    Dictionary<string, PokemonName> pokemonDict = JsonConvert.DeserializeObject<Dictionary<string, PokemonName>>(body);
-
+                    Dictionary<string, PokemonName> pokemonDict = JsonConvert.DeserializeObject<Dictionary<string, PokemonName>>(response);
                     // Convert the dictionary to a list
                     List<PokemonName> pokemonList = pokemonDict.Values.ToList();
-
                     return pokemonList;
                 }
 
-                List<PokemonName> pokemonNames = JsonConvert.DeserializeObject<List<PokemonName>>(body);
+                List<PokemonName> pokemonNames = JsonConvert.DeserializeObject<List<PokemonName>>(response);
                 return pokemonNames;
             }
             catch (Exception ex)
@@ -59,18 +53,9 @@ namespace RapidApid_gaming.Logic
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://pokemon-go1.p.rapidapi.com/pokemon_types.json");
-                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
-                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
-
-                using var response = await _httpClient.SendAsync(request);
-                var body = await response.Content.ReadAsStringAsync();
-
-
-               
-
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/pokemon_types.json");
                 // Deserialize the JSON string to a list of PokemonEvolution objects
-                List<PokemonNameType> pokemonEvolutions = JsonConvert.DeserializeObject<List<PokemonNameType>>(body);
+                List<PokemonNameType> pokemonEvolutions = JsonConvert.DeserializeObject<List<PokemonNameType>>(response);
                 return pokemonEvolutions.Where(x => x.Form.ToLower() == "normal").ToList();
             }
             catch (Exception ex)
@@ -83,16 +68,10 @@ namespace RapidApid_gaming.Logic
         {
             try
             {
-                // Getting the evolutions
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://pokemon-go1.p.rapidapi.com/pokemon_evolutions.json");
-                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
-                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
-                using var response = await _httpClient.SendAsync(request);
-                var body = await response.Content.ReadAsStringAsync();
-
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/pokemon_evolutions.json");
                 // Deserialize the JSON string to a list of PokemonEvolution objects
-                List<PokemonEvolution> pokemonEvolutions = JsonConvert.DeserializeObject<List<PokemonEvolution>>(body);
-                return pokemonEvolutions.Where(x => x.PokemonName.ToLower() == name.ToLower()).ToList().FirstOrDefault();
+                List<PokemonEvolution> pokemonEvolutions = JsonConvert.DeserializeObject<List<PokemonEvolution>>(response);
+                return pokemonEvolutions.Where(x => x.PokemonName.ToLower() == name.ToLower().Replace(" ", "")).ToList().FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -104,19 +83,11 @@ namespace RapidApid_gaming.Logic
         {
             try
             {
-
-                // Getting the evolutions
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://pokemon-go1.p.rapidapi.com/pokemon_stats.json");
-                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
-                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
-                using var response = await _httpClient.SendAsync(request);
-                var body = await response.Content.ReadAsStringAsync();
-
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/pokemon_stats.json");
                 // Deserialize the JSON string to a list of PokemonEvolution objects
-                List<PokemonStats> pokemonStats = JsonConvert.DeserializeObject<List<PokemonStats>>(body);
-
+                List<PokemonStats> pokemonStats = JsonConvert.DeserializeObject<List<PokemonStats>>(response);
                 // Getting Pokemon Image from OpenAI Image endpoint
-                PokemonStats pokeStats = pokemonStats.Where(x => x.PokemonName.ToLower() == name.ToLower()).ToList().FirstOrDefault();
+                PokemonStats pokeStats = pokemonStats.Where(x => x.PokemonName.ToLower() == name.ToLower().Replace(" ", "")).ToList().FirstOrDefault();
                 return pokeStats;
             
             }
@@ -131,16 +102,9 @@ namespace RapidApid_gaming.Logic
             try
             {
 
-                // Getting the evolutions
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://pokemon-go1.p.rapidapi.com/current_pokemon_moves.json");
-                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
-                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
-                using var response = await _httpClient.SendAsync(request);
-                var body = await response.Content.ReadAsStringAsync();
-
-
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/current_pokemon_moves.json");
                 // Deserialize the JSON string to a list of PokemonEvolution objects
-                List<PokemonMoves> pokemonMoves = JsonConvert.DeserializeObject<List<PokemonMoves>>(body);
+                List<PokemonMoves> pokemonMoves = JsonConvert.DeserializeObject<List<PokemonMoves>>(response);
                 return pokemonMoves.Where(x => x.PokemonId == PokeID).ToList().FirstOrDefault();
             }
             catch (Exception ex)
@@ -165,6 +129,26 @@ namespace RapidApid_gaming.Logic
             }
             catch (Exception ex)
             {
+                throw;
+            }
+        }
+
+
+        public async Task<string> GetMethod(string url)
+        {
+            // Getting the weather data
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("X-RapidAPI-Key", "1dcecfd511msha78bd4104e04264p11ee1fjsnf767f971b342");
+                request.Headers.Add("X-RapidAPI-Host", "pokemon-go1.p.rapidapi.com");
+                using var response = await _httpClient.SendAsync(request);
+                var body = await response.Content.ReadAsStringAsync();
+                return body;
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }
