@@ -87,7 +87,7 @@ namespace RapidApid_gaming.Logic
                 // Deserialize the JSON string to a list of PokemonEvolution objects
                 List<PokemonStats> pokemonStats = JsonConvert.DeserializeObject<List<PokemonStats>>(response);
                 // Getting Pokemon Image from OpenAI Image endpoint
-                PokemonStats pokeStats = pokemonStats.Where(x => x.PokemonName.ToLower() == name.ToLower().Replace(" ", "")).ToList().FirstOrDefault();
+                PokemonStats pokeStats = pokemonStats.Where(x => x.PokemonName.ToLower().Replace(" ", "") == name.ToLower().Replace(" ", "")).ToList().FirstOrDefault();
                 return pokeStats;
             
             }
@@ -106,6 +106,45 @@ namespace RapidApid_gaming.Logic
                 // Deserialize the JSON string to a list of PokemonEvolution objects
                 List<PokemonMoves> pokemonMoves = JsonConvert.DeserializeObject<List<PokemonMoves>>(response);
                 return pokemonMoves.Where(x => x.PokemonId == PokeID).ToList().FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<PokemonMoves> pokemonMovesByName(string PokeName)
+        {
+            try
+            {
+
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/current_pokemon_moves.json");
+                // Deserialize the JSON string to a list of PokemonEvolution objects
+                List<PokemonMoves> pokemonMoves = JsonConvert.DeserializeObject<List<PokemonMoves>>(response);
+                return pokemonMoves.Where(x => x.PokemonName.ToLower().Replace(" ", "") == PokeName.ToLower().Replace(" ", "")).ToList().FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<PokemonMovesAndDetails>> pokemonMovesAndDetailsByName(string MoveID)
+        {
+            try
+            {
+
+                var response = await GetMethod("https://pokemon-go1.p.rapidapi.com/fast_moves.json");
+                var responseV2 = await GetMethod("https://pokemon-go1.p.rapidapi.com/charged_moves.json");
+
+                // Deserialize the JSON strings to lists of PokemonMovesAndDetails objects
+                List<PokemonMovesAndDetails> pokemonMoves = JsonConvert.DeserializeObject<List<PokemonMovesAndDetails>>(response);
+                List<PokemonMovesAndDetails> pokemonMovesV2 = JsonConvert.DeserializeObject<List<PokemonMovesAndDetails>>(responseV2);
+
+                // Combine the two lists
+                List<PokemonMovesAndDetails> combinedMoves = pokemonMoves.Concat(pokemonMovesV2).ToList();
+
+                return combinedMoves.Where(x => x.move_id.ToLower().Replace(" ", "") == MoveID.ToLower().Replace(" ", "")).ToList();
             }
             catch (Exception ex)
             {

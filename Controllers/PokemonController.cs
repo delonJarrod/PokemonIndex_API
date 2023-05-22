@@ -49,6 +49,20 @@ namespace RapidApid_gaming.Controllers
         {
             return Ok(await _pokemon.pokemonMoves(PokeID));
         }
+
+        [HttpPost]
+        [Route("Post_Pokemon_Moves_By_Name")]
+        public async Task<ActionResult<IEnumerable<PokemonMoves>>> postPokemonMovesByName(string PokeName)
+        {
+            return Ok(await _pokemon.pokemonMovesByName(PokeName));
+        }
+        [HttpPost]
+        [Route("Post_Pokemon_Moves_And_Details_By_Move_Id")]
+        public async Task<ActionResult<IEnumerable<PokemonMovesAndDetails>>> postPokemonMovesAndDetailsByName(string MoveID)
+        {
+            return Ok(await _pokemon.pokemonMovesAndDetailsByName(MoveID));
+        }
+
         [HttpPost]
         [Route("Post_Pokemon_Full_Details")]
         public async Task<ActionResult<IEnumerable<PokemonName>>> postPokemonFullDetails(string name)
